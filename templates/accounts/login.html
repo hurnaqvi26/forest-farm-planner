@@ -1,0 +1,38 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Farm Planner</title>
+    <link rel="stylesheet" href="{% static 'css/farm_theme.css' %}">
+</head>
+<body class="auth-body">
+
+<div class="auth-card">
+    <h2>🌿 Farm Planner Login</h2>
+
+    {% if error %}
+    <div class="message-box" style="background:#ffecec;border-left:4px solid #ff6b6b;color:#b10000;">
+        Invalid username or password.
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <label>Username</label><br>
+        <input type="text" name="username" required><br>
+
+        <label>Password</label><br>
+        <input type="password" name="password" required><br><br>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <p style="margin-top:10px;">
+        Don't have an account?
+        <a href="/register/">Register</a>
+    </p>
+</div>
+
+</body>
+</html>
