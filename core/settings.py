@@ -6,6 +6,10 @@ SECRET_KEY = 'dev-secret-key-change-later'
 
 DEBUG = True
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.vfs.cloud9.us-east-1.amazonaws.com"
+]
+
 ALLOWED_HOSTS = ['*']  # Cloud9 / local ok
 
 INSTALLED_APPS = [
