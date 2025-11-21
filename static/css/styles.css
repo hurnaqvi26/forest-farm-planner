@@ -1,0 +1,361 @@
+/* ====== GLOBAL ====== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.page-bg {
+    background: linear-gradient(135deg, #ecfdf3, #e2f5eb);
+    min-height: 100vh;
+}
+
+/* ====== TOP BAR ====== */
+.top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 32px;
+    background: rgba(248, 253, 249, 0.98);
+    box-shadow: 0 2px 10px rgba(0, 64, 32, 0.07);
+    border-bottom: 1px solid #dcefe0;
+}
+
+.top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.top-bar-title {
+    font-weight: 700;
+    color: #14532d;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.top-bar-user {
+    font-size: 0.9rem;
+    color: #166534;
+}
+
+/* ====== LOGO CIRCLE ====== */
+.logo-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    background: radial-gradient(circle at 30% 20%, #bbf7d0, #22c55e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: #064e3b;
+    box-shadow: 0 0 0 4px #dcfce7;
+}
+.logo-circle.small {
+    width: 34px;
+    height: 34px;
+    font-size: 18px;
+}
+
+/* ====== AUTH PAGES ====== */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: #f9fff9;
+    border-radius: 18px;
+    padding: 28px 24px 24px;
+    box-shadow: 0 18px 40px rgba(22, 101, 52, 0.18);
+    border: 1px solid #dcfce7;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.auth-header h1 {
+    font-size: 1.6rem;
+    color: #14532d;
+    margin-top: 8px;
+}
+
+.auth-subtitle {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-top: 3px;
+}
+
+.auth-form {
+    margin-top: 10px;
+}
+
+.auth-footer-text {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+/* ====== DASHBOARD LAYOUT ====== */
+.dashboard-layout {
+    max-width: 1200px;
+    margin: 22px auto 40px;
+    padding: 0 16px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
+    gap: 20px;
+}
+
+.full-width-card {
+    grid-column: 1 / -1;
+}
+
+/* ====== CARDS ====== */
+.card {
+    background: #f9fff9;
+    border-radius: 18px;
+    padding: 18px 18px 20px;
+    box-shadow: 0 14px 30px rgba(15, 118, 110, 0.09);
+    border: 1px solid #bbf7d0;
+}
+
+.card-title {
+    font-size: 1.2rem;
+    color: #14532d;
+    margin-bottom: 4px;
+}
+
+.card-subtitle {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 14px;
+}
+
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+/* ====== GRID ====== */
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+/* ====== FORM ELEMENTS ====== */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
+label {
+    font-size: 0.86rem;
+    color: #065f46;
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+select {
+    border-radius: 10px;
+    border: 1px solid #d1fae5;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    outline: none;
+    background: #ffffff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus,
+select:focus {
+    border-color: #22c55e;
+    box-shadow: 0 0 0 1px #bbf7d0;
+}
+
+/* ====== BUTTONS ====== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(to right, #22c55e, #16a34a);
+    color: white;
+    box-shadow: 0 10px 18px rgba(22, 163, 74, 0.35);
+}
+
+.btn-accent {
+    background: #bbf7d0;
+    color: #14532d;
+    border: 1px solid #4ade80;
+}
+
+.btn-outline {
+    background: transparent;
+    color: #15803d;
+    border: 1px solid #4ade80;
+}
+
+.btn:hover {
+    filter: brightness(0.98);
+}
+
+/* ====== TABLE ====== */
+.table-wrapper {
+    margin-top: 10px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #d1fae5;
+    background: #f0fdf4;
+}
+
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.styled-table thead {
+    background: #bbf7d0;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 8px 10px;
+    text-align: left;
+}
+
+.styled-table tbody tr:nth-child(even) {
+    background: #ecfdf3;
+}
+
+/* ====== TAGS / PILLS ====== */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.pill-soft {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+/* ====== ALERTS ====== */
+.alert {
+    border-radius: 12px;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    margin-top: 10px;
+}
+
+.alert-success {
+    background: #ecfdf3;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.alert-error {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+/* ====== LINKS ====== */
+.link-green {
+    color: #15803d;
+    text-decoration: none;
+    font-weight: 600;
+}
+.link-green:hover {
+    text-decoration: underline;
+}
+
+/* ====== TEXT ====== */
+.muted-text {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+/* ====== ANALYTICS ====== */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.metric-card {
+    background: #ecfdf3;
+    border-radius: 12px;
+    padding: 10px 12px;
+    border: 1px solid #bbf7d0;
+}
+
+.metric-label {
+    font-size: 0.8rem;
+    color: #15803d;
+}
+
+.metric-value {
+    display: block;
+    margin-top: 4px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #166534;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 900px) {
+    .dashboard-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .analytics-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
