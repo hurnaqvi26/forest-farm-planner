@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 import json
 
+# DynamoDB save function
+from planner_core.dynamo import save_plan
+
 
 @login_required
 def dashboard(request):
@@ -9,12 +12,15 @@ def dashboard(request):
 
     if request.method == "POST" and request.POST.get("plots_json"):
         raw_json = request.POST.get("plots_json", "[]")
+
         try:
             plots = json.loads(raw_json)
         except json.JSONDecodeError:
             plots = []
 
-        # For now we don't save to AWS, just show a message.
-        ctx["message"] = f"Plan received with {len(plots)} plots. (AWS disabled for now.)"
+        # ------------- SAVE TO DYNAMODB -------------
+        plan_id = save_plan(plots, request.user.username)
+
+        ctx["message"] = f"Plan saved (DynamoDB active when AWS is ready). Plan ID: {plan_id}"
 
     return render(request, "planner/dashboard.html", ctx)
