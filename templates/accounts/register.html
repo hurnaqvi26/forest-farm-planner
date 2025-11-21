@@ -1,43 +1,60 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Register - Farm Planner</title>
-    <link rel="stylesheet" href="{% static 'css/farm_theme.css' %}">
+    <meta charset="UTF-8">
+    <title>Register • Forest & Farm Planner</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
-<body class="auth-body">
+<body class="page-bg">
 
-<div class="auth-card">
-    <h2>🌱 Create an Account</h2>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="logo-circle">🌿</div>
+            <h1>Create Account</h1>
+            <p class="auth-subtitle">Join the sustainable planning dashboard</p>
+        </div>
 
-    {% if error %}
-    <div class="message-box" style="background:#ffecec;border-left:4px solid #ff6b6b;color:#b10000;">
-        {{ error }}
+        {% if error %}
+            <div class="alert alert-error">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" required placeholder="Choose a username">
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required placeholder="you@example.com">
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password1" required placeholder="Create a password">
+            </div>
+
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" name="password2" required placeholder="Repeat your password">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">
+                Register
+            </button>
+        </form>
+
+        <p class="auth-footer-text">
+            Already have an account?
+            <a href="/" class="link-green">Login here</a>
+        </p>
     </div>
-    {% endif %}
-
-    <form method="POST">
-        {% csrf_token %}
-        <label>Username</label><br>
-        <input type="text" name="username" required><br>
-
-        <label>Email</label><br>
-        <input type="email" name="email" required><br>
-
-        <label>Password</label><br>
-        <input type="password" name="password1" required><br>
-
-        <label>Confirm Password</label><br>
-        <input type="password" name="password2" required><br><br>
-
-        <button type="submit">Register</button>
-    </form>
-
-    <p style="margin-top:10px;">
-        Already have an account?
-        <a href="/login/">Login</a>
-    </p>
 </div>
 
 </body>

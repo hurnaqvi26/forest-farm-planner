@@ -1,132 +1,143 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Farm Planner Dashboard</title>
-    <link rel="stylesheet" href="{% static 'css/farm_theme.css' %}">
+    <meta charset="UTF-8">
+    <title>Dashboard • Forest & Farm Planner</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
+<body class="page-bg">
 
-<body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <h2>🌱 Farm Planner</h2>
-    <a href="/dashboard/">📋 Dashboard</a>
-    <a href="#">🖼 S3 Files (later)</a>
-    <a href="#">📘 CloudWatch (later)</a>
-    <a href="/logout/">🚪 Logout</a>
-</div>
-
-<!-- MAIN SECTION -->
-<div class="main">
-
-    <h1>🌿 Farm Planner Dashboard</h1>
-
-    {% if message %}
-    <div class="message-box">
-        {{ message }}
+<header class="top-bar">
+    <div class="top-bar-left">
+        <div class="logo-circle small">🌱</div>
+        <span class="top-bar-title">Forest &amp; Farm Planner</span>
     </div>
-    {% endif %}
-
-    <!-- ============================
-         PLOT ANALYTICS (CHARTS)
-    ================================ -->
-    <h2>📊 Plot Analytics</h2>
-
-    <div class="chart-container">
-
-        <div class="chart-box">
-            <h3>🌾 Crop Distribution</h3>
-            <canvas id="cropChart"></canvas>
-        </div>
-
-        <div class="chart-box">
-            <h3>🟫 Soil Types</h3>
-            <canvas id="soilChart"></canvas>
-        </div>
-
-        <div class="chart-box">
-            <h3>📐 Total Area</h3>
-            <canvas id="areaChart"></canvas>
-        </div>
-
+    <div class="top-bar-right">
+        <span class="top-bar-user">Hello, {{ request.user.username }}</span>
+        <a href="/logout/" class="btn btn-outline">Logout</a>
     </div>
+</header>
 
-    <br><br>
+<main class="dashboard-layout">
 
-    <!-- ============================
-         ADD PLOTS FORM
-    ================================ -->
-    <h2>🧑‍🌾 Add Plot</h2>
+    <!-- LEFT: FORM CARD -->
+    <section class="card">
+        <h2 class="card-title">Add New Plot</h2>
+        <p class="card-subtitle">
+            Describe your plot and add it to today’s plan.
+        </p>
 
-    <label>Plot ID:</label><br>
-    <input type="text" id="plotId"><br>
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Plot ID</label>
+                <input type="text" id="plotId" placeholder="e.g. P-01">
+            </div>
 
-    <label>Area (acres):</label><br>
-    <input type="number" id="area"><br>
+            <div class="form-group">
+                <label>Area (acres)</label>
+                <input type="number" id="area" min="0" step="0.1" placeholder="e.g. 5">
+            </div>
+        </div>
 
-    <label>Soil Type:</label><br>
-    <select id="soilType">
-        <option value="loamy">Loamy</option>
-        <option value="sandy">Sandy</option>
-        <option value="clay">Clay</option>
-    </select><br>
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Soil Type</label>
+                <select id="soilType">
+                    <option value="loamy">Loamy</option>
+                    <option value="sandy">Sandy</option>
+                    <option value="clay">Clay</option>
+                    <option value="silty">Silty</option>
+                    <option value="peaty">Peaty</option>
+                </select>
+            </div>
 
-    <label>Current Crop:</label><br>
-    <input type="text" id="currentCrop"><br>
+            <div class="form-group">
+                <label>Current Crop</label>
+                <input type="text" id="currentCrop" placeholder="e.g. Wheat">
+            </div>
+        </div>
 
-    <button id="addPlot">Add Plot</button>
+        <button id="addPlot" class="btn btn-primary">
+            + Add Plot
+        </button>
+    </section>
 
-    <br><br><br>
+    <!-- RIGHT: TABLE CARD -->
+    <section class="card">
+        <div class="card-header-row">
+            <div>
+                <h2 class="card-title">My Plots</h2>
+                <p class="card-subtitle">All plots in the current plan.</p>
+            </div>
+            <div class="pill pill-soft">
+                <span id="plotCount">0</span> plots
+            </div>
+        </div>
 
-    <!-- ============================
-         PLOT TABLE
-    ================================ -->
-    <h2>📋 My Plots</h2>
+        <p id="noPlotsMsg" class="muted-text">
+            No plots added yet. Start by filling the form on the left.
+        </p>
 
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Plot ID</th>
-                <th>Area</th>
-                <th>Soil</th>
-                <th>Crop</th>
-            </tr>
-        </thead>
-        <tbody id="plotTable"></tbody>
-    </table>
+        <div class="table-wrapper">
+            <table class="styled-table" id="plotTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Plot ID</th>
+                        <th>Area (acres)</th>
+                        <th>Soil</th>
+                        <th>Crop</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows are added by JS -->
+                </tbody>
+            </table>
+        </div>
 
-    <br><br>
+        <form id="plannerForm" method="POST" class="generate-form">
+            {% csrf_token %}
+            <input type="hidden" name="plots_json" id="plots_json">
 
-    <!-- ============================
-         GENERATE PLAN
-    ================================ -->
-    <form id="plannerForm" method="POST">
-        {% csrf_token %}
-        <input type="hidden" id="plots_json" name="plots_json">
-        <button type="button" id="generatePlan">Generate Plan</button>
-    </form>
+            <button type="button" id="generatePlan" class="btn btn-accent">
+                🌿 Generate &amp; Save Plan
+            </button>
+        </form>
 
-    <br><br>
+        {% if message %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endif %}
+    </section>
 
-    <!-- ============================
-         UPLOAD IMAGE TO S3 (later)
-    ================================ -->
-    <h2>🖼 Upload Image (S3 later)</h2>
+    <!-- BOTTOM: SIMPLE ANALYTICS -->
+    <section class="card full-width-card">
+        <h2 class="card-title">Quick Analytics (this session only)</h2>
 
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" name="image" required>
-        <button type="submit">Upload (not active yet)</button>
-    </form>
+        <div class="analytics-grid">
+            <div class="metric-card">
+                <span class="metric-label">Total Plots</span>
+                <span class="metric-value" id="metricTotalPlots">0</span>
+            </div>
 
-</div>
+            <div class="metric-card">
+                <span class="metric-label">Total Area (acres)</span>
+                <span class="metric-value" id="metricTotalArea">0</span>
+            </div>
 
-<!-- JS: Chart.js + Planner Logic -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <div class="metric-card">
+                <span class="metric-label">Unique Crops</span>
+                <span class="metric-value" id="metricUniqueCrops">0</span>
+            </div>
+        </div>
+    </section>
+
+</main>
+
 <script src="{% static 'js/planner.js' %}"></script>
-
 </body>
 </html>
