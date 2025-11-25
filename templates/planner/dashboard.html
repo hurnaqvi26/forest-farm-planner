@@ -17,6 +17,10 @@
     <div class="top-bar-right">
         <span class="top-bar-user">Hello, {{ request.user.username }}</span>
         <a href="/logout/" class="btn btn-outline">Logout</a>
+        <a href="{% url 'crop_calculator' %}" class="btn-outline" style="margin-right: 12px;">
+    🌾 Crop Yield Calculator
+</a>
+
     </div>
 </header>
 
