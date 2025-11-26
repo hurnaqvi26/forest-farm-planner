@@ -1,0 +1,175 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Saved Plans</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .analytics-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .chart-container {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .chart-title {
+            font-size: 1rem;
+            color: #2d572c;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body class="page-bg">
+
+<header class="top-bar">
+    <div class="top-bar-left">
+        <div class="logo-circle small">🌱</div>
+        <span class="top-bar-title">Farm Plans</span>
+    </div>
+
+    <div class="top-bar-right">
+        <a href="/dashboard/" class="btn btn-outline">⬅ Back to Dashboard</a>
+    </div>
+</header>
+
+<main class="dashboard-layout">
+
+    <!-- ============================= ANALYTICS SECTION ========================== -->
+    <section class="card full-width-card">
+        <h2 class="card-title">Analytics Overview</h2>
+
+        <div class="analytics-grid-3">
+
+            <!-- Crop Distribution -->
+            <div class="chart-container">
+                <h3 class="chart-title">Crop Distribution</h3>
+                <canvas id="cropChart"></canvas>
+            </div>
+
+            <!-- Area Per Crop -->
+            <div class="chart-container">
+                <h3 class="chart-title">Total Area Per Crop</h3>
+                <canvas id="areaChart"></canvas>
+            </div>
+
+            <!-- Plans Over Time -->
+            <div class="chart-container">
+                <h3 class="chart-title">Plans Created Over Time</h3>
+                <canvas id="dateChart"></canvas>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ============================= TABLE SECTION ========================== -->
+    <section class="card full-width-card">
+        <h2 class="card-title">All Saved Plans</h2>
+
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Plan ID</th>
+                    <th>User</th>
+                    <th>Created At</th>
+                    <th>Total Plots</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for plan in plans %}
+                <tr>
+                    <td>{{ plan.plan_id }}</td>
+                    <td>{{ plan.username }}</td>
+                    <td>{{ plan.created_at }}</td>
+                    <td>{{ plan.plots|length }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </section>
+
+</main>
+
+
+<!-- Pass analytics data from Django to JS -->
+<script>
+    const analytics = {{ analytics|safe }};
+</script>
+
+<script>
+    // =========================
+    // Crop Chart (Pie)
+    // =========================
+    new Chart(document.getElementById("cropChart"), {
+        type: "pie",
+        data: {
+            labels: analytics.crop_labels,
+            datasets: [{
+                data: analytics.crop_values,
+                backgroundColor: [
+                    "#4CAF50", "#8BC34A", "#CDDC39", "#FFEB3B",
+                    "#FFC107", "#FF9800", "#FF5722",
+                    "#9C27B0", "#03A9F4", "#009688"
+                ]
+            }]
+        }
+    });
+
+
+    // =========================
+    // Area Chart (Bar)
+    // =========================
+    new Chart(document.getElementById("areaChart"), {
+        type: "bar",
+        data: {
+            labels: analytics.area_labels,
+            datasets: [{
+                label: "Total Acres",
+                data: analytics.area_values,
+                backgroundColor: "#4CAF50"
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+
+    // =========================
+    // Plans Over Time
+    // =========================
+    new Chart(document.getElementById("dateChart"), {
+        type: "line",
+        data: {
+            labels: analytics.date_labels,
+            datasets: [{
+                label: "Plans Created",
+                data: analytics.date_values,
+                borderColor: "#2e7d32",
+                borderWidth: 2,
+                fill: false,
+                tension: 0.3
+            }]
+        }
+    });
+</script>
+
+
+</body>
+</html>

@@ -1,140 +1,175 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Crop Yield Calculator</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .calc-container {
+            width: 90%;
+            margin: auto;
+            margin-top: 30px;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        .btn-primary {
+            background: #2e8b57;
+            padding: 12px 20px;
+            color: white;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-primary:hover {
+            background: #256e45;
+        }
+        .result-box {
+            background: #e8f7ed;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .chart-block {
+            margin-top: 30px;
+        }
+    </style>
 </head>
+
 <body class="page-bg">
 
-<div class="top-bar">
-    <div class="logo-area">
-        <span class="logo-circle">🌱</span>
-        <span class="logo-text">FOREST &amp; FARM PLANNER</span>
-    </div>
-    <div class="top-right">
-        <a href="{% url 'dashboard' %}" class="btn-outline">← Back to Dashboard</a>
-        <a href="{% url 'logout' %}" class="btn-danger">Logout</a>
-    </div>
-</div>
+<div class="calc-container">
 
-<div class="page-wrapper">
+    <h2 style="color:#2e6f3e;">🌱 Crop Yield & Profit Calculator</h2>
 
-    <div class="card card-wide">
-        <h2>🌾 Crop Yield Calculator</h2>
-        <p class="card-subtitle">
-            Use your custom Python library to estimate expected yield and profit for a crop.
-        </p>
+    <a href="/dashboard/" class="btn btn-outline">⬅ Back to Dashboard</a>
 
-        <form method="POST" class="form-grid">
+    <div class="card">
+        <form method="POST">
             {% csrf_token %}
 
-            <div class="form-field">
-                <label for="crop_name">Crop Name</label>
-                <input type="text" id="crop_name" name="crop_name" placeholder="e.g. Wheat" required>
+            <div class="grid-2">
+                <div>
+                    <label>Crop Name</label>
+                    <input type="text" name="crop_name" required>
+                </div>
+
+                <div>
+                    <label>Area (acres)</label>
+                    <input type="number" step="0.1" name="area" required>
+                </div>
             </div>
 
-            <div class="form-field">
-                <label for="area">Area (acres)</label>
-                <input type="number" step="0.1" id="area" name="area" placeholder="e.g. 5" required>
+            <div class="grid-2">
+                <div>
+                    <label>Yield Rate (kg per acre)</label>
+                    <input type="number" step="0.1" name="yield_rate" required>
+                </div>
+
+                <div>
+                    <label>Price Per Kg</label>
+                    <input type="number" step="0.1" name="price" required>
+                </div>
             </div>
 
-            <div class="form-field">
-                <label for="yield_rate">Yield Rate (kg per acre)</label>
-                <input type="number" step="0.1" id="yield_rate" name="yield_rate" placeholder="e.g. 800" required>
+            <div class="grid-2">
+                <div>
+                    <label>Soil Type</label>
+                    <select name="soil">
+                        <option value="loamy">Loamy</option>
+                        <option value="sandy">Sandy</option>
+                        <option value="clay">Clay</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Weather</label>
+                    <select name="weather">
+                        <option value="normal">Normal</option>
+                        <option value="dry">Dry</option>
+                        <option value="rainy">Rainy</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="form-field">
-                <label for="price">Market Price per kg ($)</label>
-                <input type="number" step="0.01" id="price" name="price" placeholder="e.g. 0.50" required>
-            </div>
-
-            <div class="form-field">
-                <label for="soil">Soil Type</label>
-                <select id="soil" name="soil">
-                    <option value="loamy">Loamy</option>
-                    <option value="sandy">Sandy</option>
-                    <option value="clay">Clay</option>
-                </select>
-            </div>
-
-            <div class="form-field">
-                <label for="weather">Weather Condition</label>
-                <select id="weather" name="weather">
-                    <option value="sunny">Sunny</option>
-                    <option value="cloudy">Cloudy</option>
-                    <option value="rainy">Rainy</option>
-                    <option value="storm">Storm</option>
-                </select>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                    Calculate Yield &amp; Profit
-                </button>
-            </div>
+            <button class="btn-primary" type="submit">Calculate</button>
         </form>
     </div>
 
     {% if result %}
-    <div class="card results-card">
+    <div class="card">
         <h3>📊 Calculation Results</h3>
 
-        <div class="results-grid">
-            <div class="result-box">
-                <span class="label">Crop</span>
-                <span class="value">{{ result.crop_name }}</span>
-            </div>
-
-            <div class="result-box">
-                <span class="label">Area (acres)</span>
-                <span class="value">{{ result.area }}</span>
-            </div>
-
-            <div class="result-box">
-                <span class="label">Yield Rate (kg/acre)</span>
-                <span class="value">{{ result.yield_rate }}</span>
-            </div>
-
-            <div class="result-box">
-                <span class="label">Base Yield (kg)</span>
-                <span class="value">{{ result.base_yield }}</span>
-            </div>
-
-            <div class="result-box">
-                <span class="label">Weather</span>
-                <span class="value">{{ result.weather|title }}</span>
-            </div>
-
-            <div class="result-box">
-                <span class="label">Adjusted Yield (kg)</span>
-                <span class="value highlight">{{ result.adjusted_yield }}</span>
-            </div>
-
-            <div class="result-box">
-                <span class="label">Price per kg ($)</span>
-                <span class="value">{{ result.price }}</span>
-            </div>
-
-            <div class="result-box">
-                <span class="label">Total Profit ($)</span>
-                <span class="value highlight">${{ result.total_profit }}</span>
-            </div>
+        <div class="result-box">
+            <p><b>Crop:</b> {{ result.crop_name }}</p>
+            <p><b>Base Yield:</b> {{ result.base_yield }} kg</p>
+            <p><b>Adjusted Yield:</b> {{ result.adjusted_yield }} kg</p>
+            <p><b>Total Profit:</b> ${{ result.total_profit }}</p>
         </div>
-    </div>
 
-    <div class="card">
-        <h3>🌱 Recommended Crops for {{ result.soil|title }} Soil</h3>
-        <ul class="chip-list">
-            {% for crop in recommendations %}
-                <li class="chip">{{ crop }}</li>
-            {% endfor %}
-        </ul>
+        <h3>📈 Yield Comparison Chart</h3>
+        <canvas id="yieldChart"></canvas>
+
+        <h3 style="margin-top:40px;">💰 Profit Breakdown</h3>
+        <canvas id="profitChart"></canvas>
+
+        {% if recommendations %}
+            <h3 style="margin-top:40px;">🌱 Recommended Crops for Soil ({{ result.soil }})</h3>
+            <ul>
+                {% for c in recommendations %}
+                <li>{{ c }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </div>
     {% endif %}
 
 </div>
+
+
+{% if result %}
+<script>
+    // =============== Yield Chart ===============
+    const yieldCtx = document.getElementById('yieldChart').getContext('2d');
+    new Chart(yieldCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Base Yield', 'Adjusted Yield'],
+            datasets: [{
+                label: 'Yield (kg)',
+                data: [{{ result.base_yield }}, {{ result.adjusted_yield }}],
+                backgroundColor: ['#4CAF50', '#2e8b57']
+            }]
+        }
+    });
+
+    // =============== Profit Chart ===============
+    const profitCtx = document.getElementById('profitChart').getContext('2d');
+    new Chart(profitCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Profit', 'Remaining Cost (Est.)'],
+            datasets: [{
+                data: [
+                    {{ result.total_profit }},
+                    {{ result.total_profit|floatformat:0 }} * 0.25
+                ],
+                backgroundColor: ['#4CAF50', '#8BC34A']
+            }]
+        }
+    });
+</script>
+{% endif %}
 
 </body>
 </html>

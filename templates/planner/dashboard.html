@@ -10,18 +10,18 @@
 <body class="page-bg">
 
 <header class="top-bar">
+    
     <div class="top-bar-left">
         <div class="logo-circle small">🌱</div>
         <span class="top-bar-title">Forest &amp; Farm Planner</span>
     </div>
+
     <div class="top-bar-right">
         <span class="top-bar-user">Hello, {{ request.user.username }}</span>
+        <a href="/calculator/" class="btn btn-primary">Open Crop Calculator</a>
         <a href="/logout/" class="btn btn-outline">Logout</a>
-        <a href="{% url 'crop_calculator' %}" class="btn-outline" style="margin-right: 12px;">
-    🌾 Crop Yield Calculator
-</a>
-
     </div>
+
 </header>
 
 <main class="dashboard-layout">
@@ -29,9 +29,7 @@
     <!-- LEFT: FORM CARD -->
     <section class="card">
         <h2 class="card-title">Add New Plot</h2>
-        <p class="card-subtitle">
-            Describe your plot and add it to today’s plan.
-        </p>
+        <p class="card-subtitle">Describe your plot and add it to today’s plan.</p>
 
         <div class="grid-2">
             <div class="form-group">
@@ -97,11 +95,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Rows are added by JS -->
+                    <!-- Rows added via JS -->
                 </tbody>
             </table>
         </div>
 
+        <!-- GENERATE PLAN + VIEW ALL PLANS BUTTON -->
         <form id="plannerForm" method="POST" class="generate-form">
             {% csrf_token %}
             <input type="hidden" name="plots_json" id="plots_json">
@@ -109,6 +108,12 @@
             <button type="button" id="generatePlan" class="btn btn-accent">
                 🌿 Generate &amp; Save Plan
             </button>
+
+            <!-- NEW BUTTON ADDED BELOW (FULLY STYLED) -->
+            <a href="/plans/" class="btn btn-secondary" 
+               style="display:block; text-align:center; margin-top:15px;">
+                📄 View All Saved Plans
+            </a>
         </form>
 
         {% if message %}
@@ -118,7 +123,7 @@
         {% endif %}
     </section>
 
-    <!-- BOTTOM: SIMPLE ANALYTICS -->
+    <!-- QUICK ANALYTICS -->
     <section class="card full-width-card">
         <h2 class="card-title">Quick Analytics (this session only)</h2>
 
@@ -143,5 +148,6 @@
 </main>
 
 <script src="{% static 'js/planner.js' %}"></script>
+
 </body>
 </html>
