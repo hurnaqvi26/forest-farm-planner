@@ -18,4 +18,7 @@ urlpatterns = [
 
     # View All Saved Plans
     path("plans/", planner_views.view_plans, name="view_plans"),
+    
+    # S3 Bucket
+    path("s3/", planner_views.s3_storage, name="s3_storage"),
 ]

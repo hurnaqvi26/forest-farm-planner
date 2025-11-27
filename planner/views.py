@@ -6,6 +6,10 @@ from planner_core.dynamo import save_plan, get_all_plans
 from planner_core.sqs_helper import send_plan_to_queue
 from planner_core.sns_helper import notify_user_plan_created
 from planner_core.cloudwatch_helper import create_log_group, create_log_stream, put_log_event
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+
 
 # Crop Calculator (PyPI Package)
 from cropcalc_pkg.crop_functions import (
@@ -14,6 +18,41 @@ from cropcalc_pkg.crop_functions import (
     WeatherAdjustment,
     SoilRecommender
 )
+from django.views.decorators.csrf import csrf_exempt
+from planner_core.s3_helper import upload_plot_image, list_user_objects, get_file_url
+
+
+@login_required
+def s3_storage(request):
+    username = request.user.username
+    uploaded_keys = list_user_objects(username)
+    file_urls = [get_file_url(k) for k in uploaded_keys]
+
+    if request.method == "POST":
+        plot_id = request.POST.get("plot_id")
+        uploaded_file = request.FILES.get("image_file")
+
+        if not plot_id or not uploaded_file:
+            return render(request, "planner/s3_storage.html", {
+                "error": "Plot ID and Image required!",
+                "files": zip(uploaded_keys, file_urls)
+            })
+
+        # save file temporarily
+        temp_path = f"/tmp/{uploaded_file.name}"
+        with open(temp_path, "wb+") as temp:
+            for chunk in uploaded_file.chunks():
+                temp.write(chunk)
+
+        # upload to S3
+        upload_plot_image(temp_path, username, plot_id)
+
+        uploaded_keys = list_user_objects(username)
+        file_urls = [get_file_url(k) for k in uploaded_keys]
+
+    return render(request, "planner/s3_storage.html", {
+        "files": zip(uploaded_keys, file_urls)
+    })
 
 
 # ================================
@@ -131,4 +170,38 @@ def crop_yield_calculator(request):
     return render(request, "planner/crop_calculator.html", {
         "result": result,
         "recommendations": recommendations
+    })
+    
+
+
+@login_required
+def s3_storage(request):
+    username = request.user.username
+    uploaded_keys = list_user_objects(username)
+    file_urls = [get_file_url(k) for k in uploaded_keys]
+
+    if request.method == "POST":
+        plot_id = request.POST.get("plot_id")
+        uploaded_file = request.FILES.get("image_file")
+
+        if not plot_id or not uploaded_file:
+            return render(request, "planner/s3_storage.html", {
+                "error": "Plot ID and Image required!",
+                "files": zip(uploaded_keys, file_urls)
+            })
+
+        # save file temporarily
+        temp_path = f"/tmp/{uploaded_file.name}"
+        with open(temp_path, "wb+") as temp:
+            for chunk in uploaded_file.chunks():
+                temp.write(chunk)
+
+        # upload to S3
+        upload_plot_image(temp_path, username, plot_id)
+
+        uploaded_keys = list_user_objects(username)
+        file_urls = [get_file_url(k) for k in uploaded_keys]
+
+    return render(request, "planner/s3_storage.html", {
+        "files": zip(uploaded_keys, file_urls)
     })
