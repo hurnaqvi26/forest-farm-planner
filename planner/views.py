@@ -18,6 +18,7 @@ from cropcalc_pkg.crop_functions import (
     WeatherAdjustment,
     SoilRecommender
 )
+
 from django.views.decorators.csrf import csrf_exempt
 from planner_core.s3_helper import upload_plot_image, list_user_objects, get_file_url
 
@@ -115,93 +116,111 @@ def view_plans(request):
 # ================================
 #  CROP YIELD CALCULATOR
 # ================================
+# @login_required
+# def crop_yield_calculator(request):
+#     """
+#     Uses the published PyPI package:
+#     cropcalc-hurnaqvi
+#     """
+
+#     result = None
+#     recommendations = None
+
+#     if request.method == "POST":
+#         try:
+#             crop_name = request.POST.get("crop_name")
+#             area = float(request.POST.get("area"))
+#             yield_rate = float(request.POST.get("yield_rate"))
+#             price = float(request.POST.get("price"))
+#             soil = request.POST.get("soil")
+#             weather = request.POST.get("weather")
+
+#             # Build Crop object
+#             crop = Crop(
+#                 name=crop_name,
+#                 yield_rate=yield_rate,
+#                 price_per_kg=price,
+#             )
+
+#             # Use PyPI library functionality
+#             yc = YieldCalculator()
+#             wa = WeatherAdjustment()
+#             sr = SoilRecommender()
+
+#             base_yield = yc.calculate_total_yield(area, crop)
+#             adjusted_yield = wa.adjust_yield(base_yield, weather)
+#             profit = yc.calculate_profit(adjusted_yield, crop)
+#             recommendations = sr.get_recommendations(soil)
+
+#             # Build result dictionary
+#             result = {
+#                 "crop_name": crop_name,
+#                 "area": area,
+#                 "yield_rate": yield_rate,
+#                 "base_yield": base_yield,
+#                 "adjusted_yield": adjusted_yield,
+#                 "price": price,
+#                 "profit": profit,
+#                 "soil": soil,
+#                 "weather": weather,
+#             }
+
+#         except Exception as e:
+#             print("Calculator Error:", e)
+
+#     return render(request, "planner/crop_calculator.html", {
+#         "result": result,
+#         "recommendations": recommendations
+#     })
+    
+
+
 @login_required
 def crop_yield_calculator(request):
-    """
-    Uses the published PyPI package:
-    cropcalc-hurnaqvi
-    """
 
     result = None
     recommendations = None
 
     if request.method == "POST":
-        try:
-            crop_name = request.POST.get("crop_name")
-            area = float(request.POST.get("area"))
-            yield_rate = float(request.POST.get("yield_rate"))
-            price = float(request.POST.get("price"))
-            soil = request.POST.get("soil")
-            weather = request.POST.get("weather")
+        crop_name = request.POST.get("crop_name")
+        area_acres = float(request.POST.get("area"))
+        yield_rate = float(request.POST.get("yield_rate"))
+        price_per_kg = float(request.POST.get("price"))   # <-- REQUIRED
+        soil_type = request.POST.get("soil")
+        weather = request.POST.get("weather")
 
-            # Build Crop object
-            crop = Crop(
-                name=crop_name,
-                yield_rate=yield_rate,
-                price_per_kg=price,
-            )
+        # Create Crop object (PyPI)
+        crop = Crop(
+            name=crop_name,
+            yield_rate=yield_rate,
+            price_per_kg=price_per_kg
+        )
 
-            # Use PyPI library functionality
-            yc = YieldCalculator()
-            wa = WeatherAdjustment()
-            sr = SoilRecommender()
+        yc = YieldCalculator()
+        wa = WeatherAdjustment()
+        sr = SoilRecommender()
 
-            base_yield = yc.calculate_total_yield(area, crop)
-            adjusted_yield = wa.adjust_yield(base_yield, weather)
-            profit = yc.calculate_profit(adjusted_yield, crop)
-            recommendations = sr.get_recommendations(soil)
+        # Calculate values using your PyPI package
+        base_yield = yc.calculate_total_yield(area_acres, crop)
+        adjusted_yield = wa.adjust_yield(base_yield, weather)
+        profit = yc.calculate_profit(adjusted_yield, crop)
 
-            # Build result dictionary
-            result = {
-                "crop_name": crop_name,
-                "area": area,
-                "yield_rate": yield_rate,
-                "base_yield": base_yield,
-                "adjusted_yield": adjusted_yield,
-                "price": price,
-                "profit": profit,
-                "soil": soil,
-                "weather": weather,
-            }
+        recommendations = sr.get_recommendations(soil_type)
 
-        except Exception as e:
-            print("Calculator Error:", e)
+        result = {
+            "crop_name": crop_name,
+            "area": area_acres,
+            "yield_rate": yield_rate,
+            "base_yield": base_yield,
+            "adjusted_yield": adjusted_yield,
+            "price": price_per_kg,
+            "total_profit": profit,
+            "soil": soil_type,
+            "weather": weather
+        }
 
     return render(request, "planner/crop_calculator.html", {
         "result": result,
         "recommendations": recommendations
     })
-    
 
-
-@login_required
-def s3_storage(request):
-    username = request.user.username
-    uploaded_keys = list_user_objects(username)
-    file_urls = [get_file_url(k) for k in uploaded_keys]
-
-    if request.method == "POST":
-        plot_id = request.POST.get("plot_id")
-        uploaded_file = request.FILES.get("image_file")
-
-        if not plot_id or not uploaded_file:
-            return render(request, "planner/s3_storage.html", {
-                "error": "Plot ID and Image required!",
-                "files": zip(uploaded_keys, file_urls)
-            })
-
-        # save file temporarily
-        temp_path = f"/tmp/{uploaded_file.name}"
-        with open(temp_path, "wb+") as temp:
-            for chunk in uploaded_file.chunks():
-                temp.write(chunk)
-
-        # upload to S3
-        upload_plot_image(temp_path, username, plot_id)
-
-        uploaded_keys = list_user_objects(username)
-        file_urls = [get_file_url(k) for k in uploaded_keys]
-
-    return render(request, "planner/s3_storage.html", {
-        "files": zip(uploaded_keys, file_urls)
-    })

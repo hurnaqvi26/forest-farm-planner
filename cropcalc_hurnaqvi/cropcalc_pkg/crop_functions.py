@@ -4,13 +4,12 @@ class Crop:
         self.yield_rate = yield_rate
         self.price_per_kg = price_per_kg
 
-
 class YieldCalculator:
-    def calculate_total_yield(self, area_acres, crop: Crop):
-        return area_acres * crop.yield_rate
+    def calculate_total_yield(self, area, crop):
+        return area * crop.yield_rate
 
-    def calculate_profit(self, total_yield, crop: Crop):
-        return total_yield * crop.price_per_kg
+    def calculate_profit(self, adjusted_yield, crop):
+        return adjusted_yield * crop.price_per_kg
 
 
 class WeatherAdjustment:
