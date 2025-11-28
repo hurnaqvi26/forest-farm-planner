@@ -1,9 +1,8 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>S3 Storage</title>
+    <title>Upload Farm Image</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 
@@ -11,68 +10,76 @@
 
 <header class="top-bar">
     <div class="top-bar-left">
-        <div class="logo-circle small">📦</div>
-        <span class="top-bar-title">My S3 Storage</span>
+        <div class="logo-circle small">🌱</div>
+        <span class="top-bar-title">Upload Farm Picture</span>
     </div>
+
     <div class="top-bar-right">
-        <a href="/dashboard/" class="btn btn-outline">Back</a>
+        <a href="/dashboard/" class="btn btn-outline">⬅ Back to Dashboard</a>
     </div>
 </header>
 
 <main class="dashboard-layout">
 
     <section class="card">
-        <h2>Upload Plot Image</h2>
+        <h2 class="card-title">Upload Farm Image</h2>
+        <p class="card-subtitle">Every plan must have at least one uploaded picture.</p>
 
-        <form method="POST" enctype="multipart/form-data" class="generate-form">
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="upload-form">
             {% csrf_token %}
 
             <div class="form-group">
                 <label>Plot ID</label>
-                <input type="text" name="plot_id" placeholder="P-01">
+                <input type="text" name="plot_id" placeholder="e.g. P-01" required>
             </div>
 
             <div class="form-group">
                 <label>Select Image</label>
-                <input type="file" name="image_file">
+                <input type="file" name="image_file" accept="image/*" required>
             </div>
 
-            <button class="btn btn-primary">Upload</button>
-
-            {% if error %}
-                <div class="alert alert-danger">{{ error }}</div>
-            {% endif %}
+            <button class="btn btn-primary">Upload Image</button>
         </form>
     </section>
 
-    <section class="card">
-        <h2>Your Uploaded Files</h2>
+    <!-- LIST OF UPLOADED IMAGES -->
+    <section class="card full-width-card">
+        <h2 class="card-title">Your Uploaded Images</h2>
 
-        <div class="table-wrapper">
-            <table class="styled-table">
-                <thead>
-                    <tr>
-                        <th>File</th>
-                        <th>Preview</th>
-                        <th>URL</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for key, url in files %}
-                    <tr>
-                        <td>{{ key }}</td>
-                        <td><img src="{{ url }}" width="100"></td>
-                        <td><a href="{{ url }}" target="_blank">Open</a></td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="3">No files uploaded</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {% if files %}
+            <div class="image-grid">
+                {% for key, url in files %}
+                    <div class="image-card">
+                        <img src="{{ url }}" alt="Farm Image">
+                        <p class="muted-text">{{ key }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="muted-text">No images uploaded yet.</p>
+        {% endif %}
     </section>
 
 </main>
+
+<style>
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+.image-card img {
+    width: 100%;
+    border-radius: 10px;
+}
+.upload-form input {
+    margin-bottom: 12px;
+}
+</style>
 
 </body>
 </html>

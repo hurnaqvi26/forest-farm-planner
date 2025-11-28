@@ -21,4 +21,7 @@ urlpatterns = [
     
     # S3 Bucket
     path("s3/", planner_views.s3_storage, name="s3_storage"),
+    
+    #Export PDF
+    path("export-pdf/", planner_views.export_pdf, name="export_pdf"),
 ]

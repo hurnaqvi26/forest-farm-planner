@@ -10,11 +10,9 @@
 <body class="page-bg">
 
 <header class="top-bar">
-    
     <div class="top-bar-left">
         <div class="logo-circle small">🌱</div>
-        <span class="top-bar-title">Forest &amp; Farm Planner</span>
-        
+        <span class="top-bar-title">Forest & Farm Planner</span>
     </div>
 
     <div class="top-bar-right">
@@ -22,7 +20,6 @@
         <a href="/calculator/" class="btn btn-primary">Open Crop Calculator</a>
         <a href="/logout/" class="btn btn-outline">Logout</a>
     </div>
-
 </header>
 
 <main class="dashboard-layout">
@@ -62,22 +59,21 @@
             </div>
         </div>
 
-        <button id="addPlot" class="btn btn-primary">
-            + Add Plot
-        </button>
-        <a href="/s3/" class="btn btn-outline">Upload Picture of Farm</a>
+        <button id="addPlot" class="btn btn-primary">+ Add Plot</button>
+
+        <a href="/s3/" class="btn btn-outline" style="margin-top:10px; display:block;">
+            📷 Upload Picture of Farm
+        </a>
     </section>
 
-    <!-- RIGHT: TABLE CARD -->
+    <!-- RIGHT: TABLE -->
     <section class="card">
         <div class="card-header-row">
             <div>
                 <h2 class="card-title">My Plots</h2>
                 <p class="card-subtitle">All plots in the current plan.</p>
             </div>
-            <div class="pill pill-soft">
-                <span id="plotCount">0</span> plots
-            </div>
+            <div class="pill pill-soft"><span id="plotCount">0</span> plots</div>
         </div>
 
         <p id="noPlotsMsg" class="muted-text">
@@ -90,20 +86,17 @@
                     <tr>
                         <th>#</th>
                         <th>Plot ID</th>
-                        <th>Area (acres)</th>
+                        <th>Area</th>
                         <th>Soil</th>
                         <th>Crop</th>
-                        <th></th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- Rows added via JS -->
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
 
-        <!-- GENERATE PLAN + VIEW ALL PLANS BUTTON -->
-        <form id="plannerForm" method="POST" class="generate-form">
+        <!-- FIXED FORM -->
+        <form id="plannerForm" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="hidden" name="plots_json" id="plots_json">
 
@@ -111,17 +104,17 @@
                 🌿 Save Plan
             </button>
 
-            <!-- NEW BUTTON ADDED BELOW (FULLY STYLED) -->
-            <a href="/plans/" class="btn btn-secondary" 
-               style="display:block; text-align:center; margin-top:15px;">
-                📄 View All Saved Plans
+            <button type="button" id="exportPDF" class="btn btn-secondary" style="margin-top:15px;">
+                📄 Export Plan as PDF
+            </button>
+
+            <a href="/plans/" class="btn btn-outline" style="display:block; margin-top:12px;">
+                📁 View Saved Plans
             </a>
         </form>
 
         {% if message %}
-            <div class="alert alert-success">
-                {{ message }}
-            </div>
+            <div class="alert alert-success">{{ message }}</div>
         {% endif %}
     </section>
 
@@ -136,7 +129,7 @@
             </div>
 
             <div class="metric-card">
-                <span class="metric-label">Total Area (acres)</span>
+                <span class="metric-label">Total Area</span>
                 <span class="metric-value" id="metricTotalArea">0</span>
             </div>
 
