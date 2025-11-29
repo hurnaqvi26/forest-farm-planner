@@ -359,3 +359,14 @@ select:focus {
         grid-template-columns: minmax(0, 1fr);
     }
 }
+.chart-card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 16px;
+    margin-top: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.chart-card canvas {
+    max-width: 100%;
+}

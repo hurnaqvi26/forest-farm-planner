@@ -1,16 +1,20 @@
 import os
 from pathlib import Path
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'dev-secret-key-change-later'
+SECRET_KEY = 'replace-this-for-production'
 
 DEBUG = True
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://*.vfs.cloud9.us-east-1.amazonaws.com"
-]
+ALLOWED_HOSTS = ['*']
 
-ALLOWED_HOSTS = ['*']  # Cloud9 / local ok
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.elasticbeanstalk.com',
+    'https://*.us-east-1.elasticbeanstalk.com',
+    'https://*.amazonaws.com',
+    'https://*.cloud9.us-east-1.amazonaws.com',
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -19,9 +23,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    'planner',  # our app
+    'planner',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -38,7 +42,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -53,28 +57,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
+# ===========================
+# DATABASE – REMOVE SQLITE (USING ONLY DYNAMODB)
+# ===========================
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'local.db',  # EB-safe local DB
     }
 }
 
-AUTH_PASSWORD_VALIDATORS = []  # keep simple for now
+# ===========================
+# STATIC FILES (EB compatible)
+# ===========================
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
-
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
-
-# REQUIRED for Elastic Beanstalk
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'login'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

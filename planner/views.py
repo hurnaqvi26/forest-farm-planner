@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 import json
 
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+
 # DynamoDB + AWS Services
 from planner_core.dynamo import save_plan, get_all_plans
 from planner_core.sqs_helper import send_plan_to_queue

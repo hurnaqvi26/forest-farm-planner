@@ -10,11 +10,17 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        body {
+            background: #f4f7f3;
+            font-family: 'Poppins', Arial, sans-serif;
+        }
+
         .calc-container {
             width: 90%;
             margin: auto;
             margin-top: 30px;
         }
+
         .card {
             background: white;
             padding: 25px;
@@ -22,6 +28,7 @@
             box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
             margin-bottom: 25px;
         }
+
         .btn-primary {
             background: #2e8b57;
             padding: 12px 20px;
@@ -31,17 +38,42 @@
             cursor: pointer;
             font-size: 16px;
         }
+
         .btn-primary:hover {
             background: #256e45;
         }
+
         .result-box {
             background: #e8f7ed;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
         }
-        .chart-block {
-            margin-top: 30px;
+
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        label {
+            font-weight: 600;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 15px;
         }
     </style>
 </head>
@@ -117,12 +149,6 @@
             <p><b>Total Profit:</b> ${{ result.total_profit }}</p>
         </div>
 
-        <h3>📈 Yield Comparison Chart</h3>
-        <canvas id="yieldChart"></canvas>
-
-        <h3 style="margin-top:40px;">💰 Profit Breakdown</h3>
-        <canvas id="profitChart"></canvas>
-
         {% if recommendations %}
             <h3 style="margin-top:40px;">🌱 Recommended Crops for Soil ({{ result.soil }})</h3>
             <ul>
@@ -131,43 +157,110 @@
                 {% endfor %}
             </ul>
         {% endif %}
+
+        <!-- Yield Comparison -->
+        <h3 style="margin-top:40px;">📈 Yield Comparison Chart</h3>
+        <div class="chart-card">
+            <canvas id="yieldChart" height="120"></canvas>
+        </div>
+
+        <!-- Profit Breakdown -->
+        <h3 style="margin-top:40px;">💰 Profit Breakdown</h3>
+        <div class="chart-card">
+            <canvas id="profitChart" height="120"></canvas>
+        </div>
+
     </div>
     {% endif %}
 
 </div>
 
-
 {% if result %}
 <script>
-    // =============== Yield Chart ===============
-    const yieldCtx = document.getElementById('yieldChart').getContext('2d');
-    new Chart(yieldCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Base Yield', 'Adjusted Yield'],
-            datasets: [{
-                label: 'Yield (kg)',
-                data: [{{ result.base_yield }}, {{ result.adjusted_yield }}],
-                backgroundColor: ['#4CAF50', '#2e8b57']
-            }]
-        }
-    });
+/* ============================
+   GLOBAL CHART STYLE
+============================ */
+Chart.defaults.font.family = "Poppins, Arial, sans-serif";
+Chart.defaults.font.size = 14;
+Chart.defaults.color = "#333";
 
-    // =============== Profit Chart ===============
-    const profitCtx = document.getElementById('profitChart').getContext('2d');
-    new Chart(profitCtx, {
-        type: 'pie',
-        data: {
-            labels: ['Profit', 'Remaining Cost (Est.)'],
-            datasets: [{
-                data: [
-                    {{ result.total_profit }},
-                    {{ result.total_profit|floatformat:0 }} * 0.25
-                ],
-                backgroundColor: ['#4CAF50', '#8BC34A']
-            }]
+/* Helper for gradient backgrounds */
+function gradient(ctx, c1, c2) {
+    let g = ctx.createLinearGradient(0, 0, 0, 300);
+    g.addColorStop(0, c1);
+    g.addColorStop(1, c2);
+    return g;
+}
+
+/* ============================
+   Yield Comparison Chart
+============================ */
+const yCtx = document.getElementById("yieldChart");
+
+const yieldGradient = gradient(
+    yCtx.getContext("2d"),
+    "rgba(46,139,87,0.7)",
+    "rgba(46,139,87,0.15)"
+);
+
+new Chart(yCtx, {
+    type: "bar",
+    data: {
+        labels: ["Base Yield", "Adjusted Yield"],
+        datasets: [{
+            label: "Yield (kg)",
+            data: [{{ result.base_yield }}, {{ result.adjusted_yield }}],
+            backgroundColor: yieldGradient,
+            borderColor: "#2e8b57",
+            borderWidth: 2,
+            borderRadius: 10
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            tooltip: {
+                backgroundColor: "#2e8b57",
+                titleColor: "#fff",
+                bodyColor: "#fff"
+            }
+        },
+        scales: {
+            y: { beginAtZero: true, grid: { color: "#ddd" } },
+            x: { grid: { display: false } }
         }
-    });
+    }
+});
+
+/* ============================
+   Profit Breakdown Pie Chart
+============================ */
+const pCtx = document.getElementById("profitChart");
+
+new Chart(pCtx, {
+    type: "pie",
+    data: {
+        labels: ["Net Profit", "Estimated Cost"],
+        datasets: [{
+            data: [
+                {{ result.total_profit }},
+                {{ result.total_profit|floatformat:0 }} * 0.25
+            ],
+            backgroundColor: ["#4CAF50", "#FFC107"],
+            borderColor: "#fff",
+            borderWidth: 10
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: "bottom",
+                labels: { padding: 50 }
+            }
+        }
+    }
+});
 </script>
 {% endif %}
 
