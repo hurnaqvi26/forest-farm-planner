@@ -1,0 +1,12 @@
+*.zip
+*.tar.gz
+*.pyc
+__pycache__/
+env/
+db.sqlite3
+staticfiles/
+.vscode/
+.idea/
+*.log
+farmplanner.zip
+

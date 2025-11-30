@@ -61,12 +61,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # DATABASE – REMOVE SQLITE (USING ONLY DYNAMODB)
 # ===========================
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'local.db',  # EB-safe local DB
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     }
 }
-
 # ===========================
 # STATIC FILES (EB compatible)
 # ===========================

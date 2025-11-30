@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 import json
 
+# PDF
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 
@@ -12,20 +14,20 @@ from planner_core.sns_helper import notify_user_plan_created
 from planner_core.cloudwatch_helper import create_log_group, create_log_stream, put_log_event
 from planner_core.s3_helper import upload_plot_image, list_user_objects, get_file_url
 
-# PyPI Crop Calculator Package
+# PyPI Package
 from cropcalc_pkg.crop_functions import (
     Crop,
     YieldCalculator,
     WeatherAdjustment,
     SoilRecommender
 )
+
+
+# ====================================================
+# EXPORT PDF
+# ====================================================
 @login_required
 def export_pdf(request):
-    import json
-    from django.http import HttpResponse
-    from reportlab.pdfgen import canvas
-    from reportlab.lib.pagesizes import A4
-
     raw_json = request.POST.get("plots_json", "[]")
 
     try:
@@ -47,7 +49,7 @@ def export_pdf(request):
 
     y = height - 150
 
-    # Headers
+    # Table Headers
     p.setFont("Helvetica-Bold", 12)
     p.drawString(50, y, "Plot ID")
     p.drawString(150, y, "Area")
@@ -73,14 +75,12 @@ def export_pdf(request):
     return response
 
 
-
 # ====================================================
-#  S3 STORAGE PAGE — Upload Farm Images
+# S3 STORAGE PAGE
 # ====================================================
 @login_required
 def s3_storage(request):
     username = request.user.username
-
     uploaded_keys = list_user_objects(username)
     file_urls = [get_file_url(k) for k in uploaded_keys]
 
@@ -94,16 +94,14 @@ def s3_storage(request):
                 "files": zip(uploaded_keys, file_urls)
             })
 
-        # Save temp file
+        # Save temporary
         temp_path = f"/tmp/{uploaded_file.name}"
         with open(temp_path, "wb+") as temp:
             for chunk in uploaded_file.chunks():
                 temp.write(chunk)
 
-        # Upload to S3
         upload_plot_image(temp_path, username, plot_id)
 
-        # Refresh list
         uploaded_keys = list_user_objects(username)
         file_urls = [get_file_url(k) for k in uploaded_keys]
 
@@ -113,25 +111,25 @@ def s3_storage(request):
 
 
 # ====================================================
-#  DASHBOARD — Requires at least 1 S3 Image
+# DASHBOARD — SAVE PLAN (DynamoDB + S3 + SNS + SQS)
 # ====================================================
 @login_required
 def dashboard(request):
     ctx = {}
 
-    # Check existing S3 uploads FIRST
     username = request.user.username
-    uploaded_files = list_user_objects(username)
 
+    # Check S3 images
+    uploaded_files = list_user_objects(username)
     ctx["uploaded_count"] = len(uploaded_files)
 
     if request.method == "POST":
 
-        # If NO image uploaded → DO NOT SAVE THE PLAN
         if len(uploaded_files) == 0:
-            ctx["message"] = "⛔ You must upload at least ONE farm image before saving a plan!"
+            ctx["message"] = "⛔ Upload at least ONE farm image before saving a plan."
             return render(request, "planner/dashboard.html", ctx)
 
+        # Get plot JSON
         raw_json = request.POST.get("plots_json", "[]")
 
         try:
@@ -139,20 +137,24 @@ def dashboard(request):
         except json.JSONDecodeError:
             plots = []
 
-        # 1 — Save plan in DynamoDB
-        plan_id = save_plan(plots, username)
+        # Extract fields for DynamoDB
+        area = request.POST.get("area", "0")
+        date = request.POST.get("date", "")
 
-        # 2 — Send plan to SQS
+        # ==============================
+        # SAVE PLAN to DynamoDB
+        # ==============================
+        plan_id = save_plan(plots, username, area, date)
+
+        # SQS queue
         send_plan_to_queue(plan_id, plots, username)
 
-        # 3 — Send SNS email
-        email = (request.user.email or "").strip()
+        # SNS email
+        email = request.user.email.strip()
         if email:
             notify_user_plan_created(email, plan_id, username)
-        else:
-            print("[SNS] No email found for user.")
 
-        # 4 — CloudWatch logs
+        # CloudWatch Logs
         group = "FarmPlannerLogs"
         stream = username
         create_log_group(group)
@@ -165,7 +167,7 @@ def dashboard(request):
 
 
 # ====================================================
-#  VIEW ALL SAVED PLANS
+# VIEW ALL PLANS
 # ====================================================
 @login_required
 def view_plans(request):
@@ -175,7 +177,7 @@ def view_plans(request):
 
 
 # ====================================================
-#  CROP YIELD CALCULATOR (PyPI)
+# CROP YIELD CALCULATOR
 # ====================================================
 @login_required
 def crop_yield_calculator(request):
