@@ -24,9 +24,9 @@ from cropcalc_pkg.crop_functions import (
 )
 
 
-# ====================================================
+
 #  EXPORT PLAN TO PDF
-# ====================================================
+
 
 @login_required
 def export_pdf(request):
@@ -79,9 +79,9 @@ def export_pdf(request):
     return response
 
 
-# ====================================================
+
 #  S3 STORAGE PAGE — Upload Farm Images
-# ====================================================
+
 
 @login_required
 def s3_storage(request):
@@ -168,9 +168,9 @@ def dashboard(request):
     return render(request, "planner/dashboard.html", ctx)
 
 
-# ====================================================
+
 #  VIEW ALL SAVED PLANS
-# ====================================================
+
 
 @login_required
 def view_plans(request):
@@ -179,9 +179,9 @@ def view_plans(request):
     return render(request, "planner/plans_list.html", {"plans": plans})
 
 
-# ====================================================
+
 #  CROP YIELD CALCULATOR (PyPI)
-# ====================================================
+
 
 @login_required
 def crop_yield_calculator(request):
